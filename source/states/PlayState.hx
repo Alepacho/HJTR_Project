@@ -11,10 +11,12 @@ import flixel.tile.FlxBaseTilemap.FlxTilemapAutoTiling;
 import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import objects.ObjectBat;
+import objects.ObjectBomb;
 import objects.ObjectDoor;
 import objects.ObjectPlayer;
 import objects.ObjectStone;
 import resources.ResGame;
+import utils.Math2;
 
 class PlayState extends FlxState
 {
@@ -28,9 +30,11 @@ class PlayState extends FlxState
 	var textPlayerHealth:FlxText;
 	var textGameOver:FlxText;
 	var textGameOverTick:Int = 0;
+	var textBombs:FlxText;
 
 	var objectsBat:FlxGroup;
 	var objectsStone:FlxGroup;
+	public var bombs:FlxGroup;
 
 	var enteringShop:Bool = false;
 	var restarting:Bool = false;
@@ -39,7 +43,7 @@ class PlayState extends FlxState
 
 	private function createTileMap()
 	{
-		var height = 64;
+		var height = 16 + ResGame.floor * 2;
 		var width = 16;
 
 		var data = new Array<Array<Int>>();
@@ -103,6 +107,9 @@ class PlayState extends FlxState
 		this.camera.zoom = 3;
 		objectsBat = new FlxGroup();
 		objectsStone = new FlxGroup();
+		bombs = new FlxGroup();
+		add(bombs);
+
 		this.createTileMap();
 
 		FlxG.worldBounds.set(0, 0, objectTileMap.width, objectTileMap.height);
@@ -111,6 +118,18 @@ class PlayState extends FlxState
 		{
 			objectPlayer = new objects.ObjectPlayer(objectTileMap.width / 2, -64);
 			objectPlayer.tileMap = objectTileMap;
+			objectPlayer.currentState = this;
+			objectPlayer.onCreateBomb = () ->
+			{
+				var bomb = new ObjectBomb(objectPlayer.x, objectPlayer.y);
+				var dir = objectPlayer.getPosition().degreesTo(objectDrill.getPosition());
+				bomb.throwAway(Math2.deg2rad(dir));
+				bomb.objTileMap = objectTileMap;
+				bomb.objPlayer = objectPlayer;
+				bomb.objCamera = objectCamera;
+				bomb.grpBats = objectsBat;
+				bombs.add(bomb);
+			};
 			add(objectPlayer);
 		}
 
@@ -161,7 +180,7 @@ class PlayState extends FlxState
 		}
 
 		{
-			textPlayerHealth = new FlxText(0, 0, 0, 'Health: ${objectPlayer.health}');
+			textPlayerHealth = new FlxText(0, 0, 0, 'Health: ${ResGame.health}');
 			textPlayerHealth.color = FlxColor.WHITE;
 			textPlayerHealth.scrollFactor.set(0, 0);
 			textPlayerHealth.x += FlxG.width / this.camera.zoom;
@@ -170,6 +189,18 @@ class PlayState extends FlxState
 			textPlayerHealth.setBorderStyle(FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 
 			add(textPlayerHealth);
+		}
+
+		{
+			textBombs = new FlxText(0, 0, 0, 'Bombs: ${ResGame.bombs}');
+			textBombs.color = FlxColor.WHITE;
+			textBombs.scrollFactor.set(0, 0);
+			textBombs.x += FlxG.width / this.camera.zoom;
+			textBombs.y += FlxG.height / this.camera.zoom;
+			textBombs.y += textScore.height + textPlayerHealth.height;
+			textBombs.setBorderStyle(FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+
+			add(textBombs);
 		}
 
 		{
@@ -198,6 +229,8 @@ class PlayState extends FlxState
 		FlxG.collide(objectTileMap, objectsBat);
 		FlxG.collide(objectTileMap, objectsStone);
 		// FlxG.collide(objectTileMap, objectsStone);
+		FlxG.collide(objectTileMap, bombs);
+		FlxG.collide(objectsStone, bombs);
 
 		FlxG.collide(objectPlayer, objectsStone, (a:ObjectPlayer, b:ObjectStone) -> {
 			a.onCollideStone(b);
@@ -213,12 +246,14 @@ class PlayState extends FlxState
 				enteringShop = true;
 				FlxG.camera.fade(FlxColor.BLACK, 1, false, () -> {
 					trace("Entering shop...");
+					ResGame.floor += 1;
 					FlxG.switchState(ShopState.new);
 				});
 			}
 		});
 
-		if (FlxG.keys.anyJustPressed([ENTER])) {
+		if (objectPlayer.isDead() && FlxG.keys.anyJustPressed([ENTER]))
+		{
 			this.restartGame();
 		}
 
@@ -228,8 +263,8 @@ class PlayState extends FlxState
 
 		// textScore1.text = 'Score: ${ResGame.score}';
 		textScore.text = 'Score: ${ResGame.score}';
-		textPlayerHealth.text = 'Health: ${objectPlayer.health}';
-
+		textPlayerHealth.text = 'Health: ${ResGame.health}';
+		textBombs.text = 'Bombs: ${ResGame.bombs}';
 		if (objectPlayer.isDead()) {
 			textGameOverTick++;
 			if ((textGameOverTick % 60) < 30) textGameOver.alpha = 0; else textGameOver.alpha = 1;

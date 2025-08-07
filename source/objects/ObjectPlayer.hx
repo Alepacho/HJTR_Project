@@ -2,10 +2,12 @@ package objects;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.FlxState;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import resources.ResGame;
+import states.PlayState;
 import utils.Math2;
 
 class ObjectPlayer extends FlxSprite
@@ -13,13 +15,16 @@ class ObjectPlayer extends FlxSprite
 	static inline final SPEED:Float = 100;
 	static inline final FRICTION:Float = 0.7;
 	static inline final GRAVITY:Float = Config.GRAVITY;
-	static inline final JUMP_FORCE:Float = -300;
+	static inline final JUMP_FORCE:Float = -250;
 
+	public var currentState:FlxState = null;
 	public var objCamera:ObjectCamera = null;
 	public var tileMap:ObjectTileMap = null;
 	public var drill:ObjectDrill = null;
 
-	public var health:Int = 100;
+	public var onCreateBomb:() -> Void = () -> {};
+
+	// public var health:Int = 100;
 
 	var invulnerability:Bool = false;
 	var invulnerabilityTimer:Int = 0;
@@ -29,7 +34,9 @@ class ObjectPlayer extends FlxSprite
 	var drilling:Bool = false;
 	var drillTimer:Int = 0;
 	var isDrilling:Bool = false;
-	var use:Bool = false;
+	public var use:Bool = false;
+
+	var throwBomb:Bool = false;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -97,7 +104,7 @@ class ObjectPlayer extends FlxSprite
 		{
 			trace('Player jump! ${velocity}');
 			y--;
-			velocity.y = JUMP_FORCE / 2;
+			velocity.y = JUMP_FORCE / 2 - ResGame.legs;
 		}
 	}
 
@@ -148,17 +155,16 @@ class ObjectPlayer extends FlxSprite
 		x = Math2.clamp(x, 0, tileMap.width - 16);
 	}
 
-	function throwBack(position:FlxPoint)
+	public function throwBack(position:FlxPoint, distance:Float = 75)
 	{
 		var angle = position.degreesTo(this.getPosition());
 		angle = Math2.deg2rad(angle);
-		var dist = 75;
-		velocity.set(Math.cos(angle) * dist, Math.sin(angle) * dist);
+		velocity.set(Math.cos(angle) * distance, Math.sin(angle) * distance);
 	}
 
 	public function isDead()
 	{
-		if (health <= 0)
+		if (ResGame.health <= 0)
 			return true;
 		return false;
 	}
@@ -181,7 +187,7 @@ class ObjectPlayer extends FlxSprite
 			throwBack(bat.getPosition());
 			invulnerability = true;
 			invulnerabilityTimer = 100;
-			health -= 10;
+			ResGame.health -= 10;
 		}
 	}
 
@@ -194,7 +200,7 @@ class ObjectPlayer extends FlxSprite
 		if (stone.onFloor) return;
 		if ((stone.y + 24) > this.y) return;
 
-		health = 0;
+		ResGame.health = 0;
 	}
 
 	public function onOverlapDoor(door:ObjectDoor):Bool {
@@ -210,7 +216,6 @@ class ObjectPlayer extends FlxSprite
 		// 	return;
 
 		drill.playAnimation();
-		
 	}
 
 	function updateInvulnerability() {
@@ -230,6 +235,22 @@ class ObjectPlayer extends FlxSprite
 			this.alpha = 1;
 	}
 
+	function throwBombFn()
+	{
+		if (ResGame.bombs <= 0)
+			return;
+		onCreateBomb();
+		ResGame.bombs--;
+		// if (currentState != null)
+		// {
+		// 	if (Std.isOfType(currentState, PlayState))
+		// 	{
+		// 		var s = cast(currentState, PlayState);
+
+		// 	}
+		// }
+	}
+
 	override function update(elapsed:Float):Void
 	{
 		isDrilling = drill.isDrilling();
@@ -242,6 +263,13 @@ class ObjectPlayer extends FlxSprite
 		this.clampPosition();
 
 		use = FlxG.keys.anyJustPressed([ENTER, F, E]);
+		throwBomb = FlxG.keys.anyJustPressed([G, TAB]);
+
+		if (throwBomb)
+		{
+			this.throwBombFn();
+		}
+
 		drilling = FlxG.mouse.pressed;
 		if (drillTimer > 0) {
 			drillTimer--;
@@ -249,7 +277,7 @@ class ObjectPlayer extends FlxSprite
 
 		if (drilling) {
 			if (drillTimer <= 0) {
-				drillTimer = 50;
+				drillTimer = 50 - Std.int(Math2.clamp(ResGame.drillPower, 0, 45));
 				this.attackDrill();
 			}
 		}
@@ -265,7 +293,9 @@ class ObjectPlayer extends FlxSprite
 		}
 
 		this.updateInvulnerability();
-		
+
+		// clamp it just for sure
+		ResGame.health = FlxMath.maxInt(ResGame.health, 0);
 
 		if (Config.DEBUG)
 		{

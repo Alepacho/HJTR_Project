@@ -2,12 +2,15 @@ package states;
 
 import flixel.FlxG;
 import flixel.FlxState;
+import flixel.group.FlxGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import objects.ObjectCamera;
 import objects.ObjectDoor;
 import objects.ObjectDrill;
 import objects.ObjectPlayer;
+import objects.ObjectPowerUp;
+import objects.ObjectTable;
 import objects.ObjectTileMap;
 import resources.ResGame;
 
@@ -18,10 +21,13 @@ class ShopState extends FlxState
 	var objCamera:ObjectCamera;
 	var objDoor:ObjectDoor;
 	var objTileMap:ObjectTileMap;
+	var tables:FlxGroup;
+	var grpPowerUps:FlxGroup;
 
 	var enteringCave:Bool = false;
 
 	var textResources:FlxText;
+	var textPowerUp:FlxText;
 
 	function createTileMap()
 	{
@@ -44,6 +50,32 @@ class ShopState extends FlxState
 		this.bgColor = FlxColor.BLACK;
 		this.camera.zoom = 3;
 		this.createTileMap();
+
+		tables = new FlxGroup();
+		grpPowerUps = new FlxGroup();
+		{
+			var table = new ObjectTable(0 * 24, 2 * 24);
+			tables.add(table);
+
+			var powerup = new ObjectPowerUp(0 * 24, 1 * 24 + 12);
+			grpPowerUps.add(powerup);
+		}
+		{
+			var table = new ObjectTable(1 * 24, 2 * 24);
+			tables.add(table);
+
+			var powerup = new ObjectPowerUp(1 * 24, 1 * 24 + 12);
+			grpPowerUps.add(powerup);
+		}
+		{
+			var table = new ObjectTable(2 * 24, 2 * 24);
+			tables.add(table);
+
+			var powerup = new ObjectPowerUp(2 * 24, 1 * 24 + 12);
+			grpPowerUps.add(powerup);
+		}
+		add(tables);
+		add(grpPowerUps);
 
 		{
 			objDoor = new ObjectDoor(6 * 24, 2 * 24);
@@ -76,10 +108,17 @@ class ShopState extends FlxState
 			textResources.y += FlxG.height / this.camera.zoom;
 			add(textResources);
 		}
+		{
+			textPowerUp = new FlxText(0, 0, 0, 'POWERUP_INFO\nCOST: 10 gold');
+			textPowerUp.alpha = 0;
+			add(textPowerUp);
+		}
 	}
 
 	override function update(elapsed:Float):Void
 	{
+		textPowerUp.alpha = 0;
+
 		super.update(elapsed);
 
 		FlxG.collide(objPlayer, objTileMap);
@@ -95,6 +134,18 @@ class ShopState extends FlxState
 					trace("Entering cave...");
 					FlxG.switchState(PlayState.new);
 				});
+			}
+		});
+		FlxG.overlap(objPlayer, grpPowerUps, (a:ObjectPlayer, b:ObjectPowerUp) ->
+		{
+			textPowerUp.alpha = 1;
+			textPowerUp.x = b.x;
+			textPowerUp.y = b.y - 32;
+			textPowerUp.text = '${b.getInfo()}\ncost: 10 ${b.getCurrencyName()}';
+
+			if (a.use)
+			{
+				b.use(a);
 			}
 		});
 
