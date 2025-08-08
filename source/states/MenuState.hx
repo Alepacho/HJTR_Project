@@ -8,6 +8,8 @@ import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import resources.ResGame;
+import substates.MenuCreditsSubstate;
+import substates.MenuHowToPlaySubstate;
 
 class MenuState extends FlxState
 {
@@ -66,7 +68,7 @@ class MenuState extends FlxState
 
 		{
 			creditsButton = new FlxButton(0, 0, "Credits", () -> {
-				// FlxG.switchState(PlayState.new);
+				openSubState(new MenuCreditsSubstate());
 			});
 			creditsButton.screenCenter();
 			creditsButton.y += creditsButton.height * 2;
@@ -76,6 +78,7 @@ class MenuState extends FlxState
 		{
 			htpButton = new FlxButton(0, 0, "How to play", () -> {
 				// FlxG.switchState(PlayState.new);
+				openSubState(new MenuHowToPlaySubstate());
 			});
 			htpButton.screenCenter();
 			htpButton.y += htpButton.height * 4;
@@ -86,6 +89,8 @@ class MenuState extends FlxState
 	override public function create()
 	{
 		super.create();
+
+		trace('size: ${FlxG.width}, ${FlxG.height}');
 
 		// this.bgColor = FlxColor.PINK;
 		this.setWindowSettings();

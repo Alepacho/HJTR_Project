@@ -13,6 +13,7 @@ import objects.ObjectPowerUp;
 import objects.ObjectTable;
 import objects.ObjectTileMap;
 import resources.ResGame;
+import substates.PlayPauseSubstate;
 
 class ShopState extends FlxState
 {
@@ -120,6 +121,11 @@ class ShopState extends FlxState
 		textPowerUp.alpha = 0;
 
 		super.update(elapsed);
+
+		if (FlxG.keys.anyJustPressed([ESCAPE]))
+		{
+			this.openSubState(new PlayPauseSubstate());
+		}
 
 		FlxG.collide(objPlayer, objTileMap);
 		FlxG.overlap(objPlayer, objDoor, (a:ObjectPlayer, b:ObjectDoor) ->

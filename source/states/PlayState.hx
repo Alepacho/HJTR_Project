@@ -16,6 +16,7 @@ import objects.ObjectDoor;
 import objects.ObjectPlayer;
 import objects.ObjectStone;
 import resources.ResGame;
+import substates.PlayPauseSubstate;
 import utils.Math2;
 
 class PlayState extends FlxState
@@ -208,6 +209,7 @@ class PlayState extends FlxState
 			textGameOver.color = FlxColor.RED;
 			textGameOver.scrollFactor.set(0, 0);
 			textGameOver.screenCenter();
+			textGameOver.setBorderStyle(FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 			add(textGameOver);
 		}
 	}
@@ -224,6 +226,11 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if (FlxG.keys.anyJustPressed([ESCAPE]))
+		{
+			this.openSubState(new PlayPauseSubstate());
+		}
 
 		FlxG.collide(objectPlayer, objectTileMap);
 		FlxG.collide(objectTileMap, objectsBat);
@@ -265,6 +272,7 @@ class PlayState extends FlxState
 		textScore.text = 'Score: ${ResGame.score}';
 		textPlayerHealth.text = 'Health: ${ResGame.health}';
 		textBombs.text = 'Bombs: ${ResGame.bombs}';
+
 		if (objectPlayer.isDead()) {
 			textGameOverTick++;
 			if ((textGameOverTick % 60) < 30) textGameOver.alpha = 0; else textGameOver.alpha = 1;
