@@ -24,7 +24,8 @@ class MenuHowToPlaySubstate extends FlxSubState
         }
 
 		{
-			textFirst = new FlxText(0, 0, 0, 'Movement: "WASD"\nUse your mouse to change dirll angle\nTo drill press "LMB"\nTo use press "E/F/ENTER"');
+			textFirst = new FlxText(0, 0, 0,
+				'Movement: "WASD"\nUse your mouse to change dirll angle\nTo drill press "LMB"\nTo throw a bomb press "G"\nTo use press "E/F/ENTER"');
 			textFirst.screenCenter();
 			add(textFirst);
 		}

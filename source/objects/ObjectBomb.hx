@@ -1,5 +1,6 @@
 package objects;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
@@ -47,6 +48,7 @@ class ObjectBomb extends FlxSprite
         } else {
             this.kill();
             objCamera.shake();
+			FlxG.sound.play("assets/sounds/explosion.wav");
 
             // destroy near blocks
             var _x = Math.floor(this.x / 24) * 24;

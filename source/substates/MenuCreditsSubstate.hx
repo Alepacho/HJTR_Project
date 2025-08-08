@@ -24,7 +24,8 @@ class MenuCreditsSubstate extends FlxSubState
         }
 
 		{
-			textFirst = new FlxText(0, 0, 0, 'Made by me, Alepacho :^)\nSpecially for Haxe Jam 2025: Summer Jam.');
+			textFirst = new FlxText(0, 0, 0,
+				'Game made by me, Alepacho :^)\nSFX is also made by me.\n\nMain menu theme: "Funky n Blinky - 8bit by Lenny Pixels" from "Free Music Archive" (CC BY)\nGameplay theme: "Strange Signal - 8bit by Lenny Pixels" from "Free Music Archive" (CC BY)\nShop theme: "The Beat of Nuts n Bolts - 8bit by Lenny Pixels" from "Free Music Archive" (CC BY)\n\nSpecially for Haxe Jam 2025: Summer Jam.');
 			textFirst.screenCenter();
 			add(textFirst);
 		}

@@ -111,6 +111,8 @@ class PlayState extends FlxState
 		bombs = new FlxGroup();
 		add(bombs);
 
+		FlxG.sound.playMusic("assets/music/gameplay.mp3", 1, true);
+
 		this.createTileMap();
 
 		FlxG.worldBounds.set(0, 0, objectTileMap.width, objectTileMap.height);
@@ -130,6 +132,7 @@ class PlayState extends FlxState
 				bomb.objCamera = objectCamera;
 				bomb.grpBats = objectsBat;
 				bombs.add(bomb);
+				FlxG.sound.play("assets/sounds/bomb.wav");
 			};
 			add(objectPlayer);
 		}
@@ -219,6 +222,7 @@ class PlayState extends FlxState
 		restarting = true;
 		FlxG.camera.fade(FlxColor.BLACK, 1, false, () -> {
 			trace("Entering menu...");
+			FlxG.sound.pause();
 			FlxG.switchState(MenuState.new);
 		});
 	}
@@ -254,6 +258,7 @@ class PlayState extends FlxState
 				FlxG.camera.fade(FlxColor.BLACK, 1, false, () -> {
 					trace("Entering shop...");
 					ResGame.floor += 1;
+					FlxG.sound.pause();
 					FlxG.switchState(ShopState.new);
 				});
 			}

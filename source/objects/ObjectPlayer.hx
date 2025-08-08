@@ -188,6 +188,7 @@ class ObjectPlayer extends FlxSprite
 			invulnerability = true;
 			invulnerabilityTimer = 100;
 			ResGame.health -= 10;
+			FlxG.sound.play("assets/sounds/player_attacked.wav");
 		}
 	}
 
@@ -214,6 +215,7 @@ class ObjectPlayer extends FlxSprite
 			return;
 		// if (!drilling)
 		// 	return;
+		FlxG.sound.play("assets/sounds/drill.wav");
 
 		drill.playAnimation();
 	}

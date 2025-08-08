@@ -52,6 +52,9 @@ class ShopState extends FlxState
 		this.camera.zoom = 3;
 		this.createTileMap();
 
+		FlxG.sound.playMusic("assets/music/shop.mp3", 1, true);
+
+
 		tables = new FlxGroup();
 		grpPowerUps = new FlxGroup();
 		{
@@ -138,6 +141,7 @@ class ShopState extends FlxState
 				FlxG.camera.fade(FlxColor.BLACK, 1, false, () ->
 				{
 					trace("Entering cave...");
+					FlxG.sound.pause();
 					FlxG.switchState(PlayState.new);
 				});
 			}

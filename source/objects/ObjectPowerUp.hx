@@ -1,5 +1,6 @@
 package objects;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
@@ -149,6 +150,7 @@ class ObjectPowerUp extends FlxSprite
             case HEALTH:
                 ResGame.health += 10;
         }
+		FlxG.sound.play("assets/sounds/buy.wav");
         this.kill();
     }
 

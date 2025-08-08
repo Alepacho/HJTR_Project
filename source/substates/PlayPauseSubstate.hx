@@ -46,6 +46,7 @@ class PlayPauseSubstate extends FlxSubState
 
         {
             btnExit = new FlxButton(0, 0, 'Exit to menu', () -> {
+				FlxG.sound.pause();
                 FlxG.switchState(MenuState.new);
                 close();
             });

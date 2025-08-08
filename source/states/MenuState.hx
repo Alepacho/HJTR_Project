@@ -59,6 +59,7 @@ class MenuState extends FlxState
 				{
 					trace("Starting the game...");
 					ResGame.reset();
+					FlxG.sound.pause();
 					FlxG.switchState(PlayState.new);
 				});
 			});
@@ -67,7 +68,8 @@ class MenuState extends FlxState
 		}
 
 		{
-			creditsButton = new FlxButton(0, 0, "Credits", () -> {
+			creditsButton = new FlxButton(0, 0, "Credits", () ->
+			{
 				openSubState(new MenuCreditsSubstate());
 			});
 			creditsButton.screenCenter();
@@ -76,7 +78,8 @@ class MenuState extends FlxState
 		}
 
 		{
-			htpButton = new FlxButton(0, 0, "How to play", () -> {
+			htpButton = new FlxButton(0, 0, "How to play", () ->
+			{
 				// FlxG.switchState(PlayState.new);
 				openSubState(new MenuHowToPlaySubstate());
 			});
@@ -95,6 +98,7 @@ class MenuState extends FlxState
 		// this.bgColor = FlxColor.PINK;
 		this.setWindowSettings();
 		this.createEntities();
+		FlxG.sound.playMusic("assets/music/menu.mp3", 1, true);
 	}
 
 	override public function update(elapsed:Float)
